@@ -1,0 +1,25 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  lint-and-typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: |
+          bun_version=$(cat package.json | jq -r '.packageManager' | sed 's/^bun@//')
+          echo "bun_version=${bun_version}" >> $GITHUB_ENV
+
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: ${{ env.bun_version }}
+
+      - run: bun install
+      - run: bun lint
+      - run: bun typecheck
